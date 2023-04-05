@@ -4,12 +4,13 @@ from tkinter import filedialog as fd
 from tkinter import messagebox
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-
+from Details.fileInfo import extract_infos
 from mypackages.Scan import *
+
 window = Tk()
 window.geometry("1200x750")
 window.title('AntiBug')
-# window.iconbitmap(r'C:\\AntiBug\\favicon.ico')
+window.iconbitmap(r'D:\antivirus_miniproject_2B - Copy\favicon.ico')
 
 def scanPage():
 
@@ -29,11 +30,8 @@ def scanPage():
                 elif file_path.endswith(".exe"):
                     message = file_path
                     result = scan_malware(file_path)
-                    # output.delete('1.0', 'end')  # clear previous contents of output widget
                     output.insert('end',"\n"+ message)
                     output.insert('end',"\n"+ result)
-        # del message
-        # del result
     
     def choose_folder_and_scan():
         # Show the "Choose Folder" dialog box
@@ -60,7 +58,6 @@ def scanPage():
 
 
 
-    # width=1200, height=500,
     folderScanBtn = Button(scanFrame, text='Scan Folder', width=15, height=2, font=('Bold', 15),fg="white",
                            command=scan_directory)
     # folderScanBtn.grid(row=0, column=0, padx=10, pady=40)
@@ -88,9 +85,6 @@ def scanPage():
     scanFrame.pack(pady=20)
     scanFrame.pack_propagate(False)
 
-    
-
-
 
 def quarPage():
     quarFrame = Frame(main_frame)
@@ -100,20 +94,7 @@ def quarPage():
     
     def delete_file():
           # clear the textbox
-        filepath = textbox.get("1.0", ttk.END).strip()
-        # while True:
-        #     try:
-        #         os.remove(filepath)
-        #         print(f"Deleted {filepath}")
-        #         break
-        #     except PermissionError:
-        #         print(f"{filepath} is currently being used, waiting for 5 seconds...")
-        #         time.sleep(5)
-        #     except FileNotFoundError:
-        #         print(f"{filepath} not found.")
-        #         break
-        # filename = os.path.basename(filepath)
-
+        filepath = textbox.get("1.0", ttk.END).strip()         
         if os.path.exists(filepath):
             try:
                 os.remove(filepath)
@@ -123,8 +104,6 @@ def quarPage():
                 messagebox.showerror("Error", f"Unable to delete file: {str(e)}")
             except OSError as e:
         # If the file is currently being used, wait for 5 seconds and try again
-                # filename = os.path.basename(filepath)
-
                 if e.errno == 32:
                     print(f"{filepath} is currently being used, waiting for 5 seconds...")
                     time.sleep(5)
@@ -137,16 +116,32 @@ def quarPage():
                 height=1,
                 font=("bold",15)
                 )
-    textbox.pack(fill=ttk.X,expand=True)
+    # textbox.pack(fill=ttk.X,pady=0,expand=True)
+    textbox.place(x=10,y=10)
+
+    def details():
+        filepath = textbox.get("1.0", ttk.END).strip()
+        fileDetails = extract_infos(filepath)
+        strDetails = '\n'.join([f"{k}: {v}" for k, v in fileDetails.items()])
+        detailBox.insert('1.0', strDetails)
+
+    detailBox = Text(
+                quarFrame,
+                height=22,
+                font=("bold",15),
+                )
+    # detailBox.pack(fill=ttk.X,pady=0,expand=True)
+    detailBox.place(x=10,y=60)
+    # detailBox.config(state='disable')
+
 
     deleteFileBtn = Button(quarFrame, text='Delete', font=('Bold', 20),fg="white", command=delete_file)
-    deleteFileBtn.place(x=20.0, y=550,width=350)
+    deleteFileBtn.place(x=20.0, y=650,width=350)
     deleteFileBtn.configure(bg='#800080')
 
     
-    
-    restoreFileBtn = Button(quarFrame, text='Show', font=('Bold', 20),fg="white")
-    restoreFileBtn.place(x=500, y=550,width=350)
+    restoreFileBtn = Button(quarFrame, text='Show', font=('Bold', 20),fg="white", command=details)
+    restoreFileBtn.place(x=500, y=650,width=350)
     restoreFileBtn.configure(bg='#800080')
 
     quarFrame.pack(pady=20)
@@ -289,5 +284,4 @@ main_frame.configure(width=900, height=750,bg='#D9E3F1')
 
 indicate(scan_indicate, scanPage)
 
-# window.pack_propagate(False)
 window.mainloop()

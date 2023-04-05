@@ -1,6 +1,3 @@
-import os
-from tkinter import filedialog
-# from main import output
 import pefile
 import os
 import array
@@ -9,14 +6,10 @@ import pickle
 import joblib
 import sys
 import argparse
+# from werkzeug.utils import secure_filename
+# from main import quarPage
 
-# from Details.fileInfo import extract_infos
-
-result = 0
-variable = ""
-def scan_malware(filepath):
-
-    def get_entropy(data):
+def get_entropy(data):
         if len(data) == 0:
             return 0.0
         occurences = array.array("L", [0]*256)
@@ -29,7 +22,7 @@ def scan_malware(filepath):
                 entropy -= p_x*math.log(p_x, 2)
         return entropy
 
-    def get_resources(pe):
+def get_resources(pe):
         """Extract resources :
         [entropy, size]"""
         resources = []
@@ -50,15 +43,15 @@ def scan_malware(filepath):
                 return resources
         return resources
 
-    def get_version_info(pe):
-        """Return version infos"""
+def get_version_info(pe):
         res = {}
+
+        """Return version infos"""
         for fileinfo in pe.FileInfo:
             if fileinfo.Key == 'StringFileInfo':
                 for st in fileinfo.StringTable:
                     for entry in st.entries.items():
                         res[entry[0]] = entry[1]
-                        # res[entry[0]] = entry[1]
             if fileinfo.Key == 'VarFileInfo':
                 for var in fileinfo.Var:
                     res[var.entry.items()[0][0]] = var.entry.items()[0][1]
@@ -72,7 +65,7 @@ def scan_malware(filepath):
             res['struct_version'] = pe.VS_FIXEDFILEINFO.StrucVersion
         return res
 
-    def extract_infos(filepath):
+def extract_infos(filepath):
         res = {}
         pe = pefile.PE(filepath)
         res['Machine'] = pe.FILE_HEADER.Machine
@@ -173,42 +166,10 @@ def scan_malware(filepath):
             res['VersionInformationSize'] = len(version_infos.keys())
         except AttributeError:
             res['VersionInformationSize'] = 0
-        return res
-    
-    
-    
-    # parser = argparse.ArgumentParser(description='Detect malicious files')
-    # parser.add_argument('FILE', help='File to be tested')
-    # args = parser.parse_args()
-
-    clf = joblib.load(os.path.join(
-        os.path.dirname(os.path.realpath(__file__)),
-        '../classifier/model.pkl'
-    ))
-    features = pickle.loads(open(os.path.join(
-        os.path.dirname(os.path.realpath(__file__)),
-        '../classifier/features.pkl'),
-        'rb').read()
-    )
-
-    data = extract_infos(filepath)
-
-    pe_features = list(map(lambda x:data[x], features))
-
-    global result
-
-    result= clf.predict([pe_features])
-    # print(The file %s is %s' % (
-        # os.path.basename(sys.argv[1]),
-    
-    message=""
-    if result  == 0:
-        message += 'Malicious'
-    else:
-        message += 'Legitimate'
-    #)
-    # del filepath
-    return message
+        
+        features = res
+        # print(features)
+        return features
 
 
-
+# extract_infos("C:\\Users\\HP\\OneDrive\\Desktop\\Others\\testing\\Scantest\\10890-originalnyy-gta-saexe-v101.exe")
