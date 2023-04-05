@@ -1,3 +1,4 @@
+import time
 from tkinter import *
 from tkinter import filedialog as fd
 from tkinter import messagebox
@@ -100,6 +101,19 @@ def quarPage():
     def delete_file():
           # clear the textbox
         filepath = textbox.get("1.0", ttk.END).strip()
+        # while True:
+        #     try:
+        #         os.remove(filepath)
+        #         print(f"Deleted {filepath}")
+        #         break
+        #     except PermissionError:
+        #         print(f"{filepath} is currently being used, waiting for 5 seconds...")
+        #         time.sleep(5)
+        #     except FileNotFoundError:
+        #         print(f"{filepath} not found.")
+        #         break
+        # filename = os.path.basename(filepath)
+
         if os.path.exists(filepath):
             try:
                 os.remove(filepath)
@@ -107,6 +121,14 @@ def quarPage():
                 messagebox.showinfo("File Deleted", f"The file {filepath} has been deleted.")
             except Exception as e:
                 messagebox.showerror("Error", f"Unable to delete file: {str(e)}")
+            except OSError as e:
+        # If the file is currently being used, wait for 5 seconds and try again
+                # filename = os.path.basename(filepath)
+
+                if e.errno == 32:
+                    print(f"{filepath} is currently being used, waiting for 5 seconds...")
+                    time.sleep(5)
+                    delete_file(filepath)
         else:
             messagebox.showerror("Error", f"File does not exist: {filepath}")
 
