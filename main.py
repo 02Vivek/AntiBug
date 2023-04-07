@@ -2,15 +2,20 @@ import time
 from tkinter import *
 from tkinter import filedialog as fd
 from tkinter import messagebox
+from matplotlib import pyplot as plt
+from matplotlib.backend_bases import NavigationToolbar2
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
+from Details import fileInfo
 from Details.fileInfo import extract_infos
 from mypackages.Scan import *
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 
 window = Tk()
 window.geometry("1200x750")
 window.title('AntiBug')
-window.iconbitmap(r'D:\antivirus_miniproject_2B - Copy\favicon.ico')
+# window.iconbitmap(r'C:\AntiBug\AntiBug\favicon.ico')
 
 def scanPage():
 
@@ -18,6 +23,16 @@ def scanPage():
     scanFrame.pack(fill=ttk.BOTH, expand=True, padx=10, pady=10)
     frame_height = window.winfo_height()
     scanFrame.configure(height=frame_height,bg='#D9E3F1')
+
+    
+    output = Text(
+            scanFrame,
+            height=18,
+            width=130,
+            font=("bold",15)
+            )
+    
+    output.pack(fill=ttk.X,expand=True)
 
     def scan_directory_depth_first(path):
         stack = [path]
@@ -70,17 +85,6 @@ def scanPage():
     fileScanBtn.place(x=450, y=50, width=400)
     # fileScanBtn.grid(row=0, column=5, padx=10, pady=40)
     fileScanBtn.configure(bg='#800080')
-
-    
-    output = Text(
-            scanFrame,
-            height=18,
-            width=130,
-            font=("bold",15)
-            )
-    
-    output.pack(fill=ttk.X,expand=True)
-
 
     scanFrame.pack(pady=20)
     scanFrame.pack_propagate(False)
@@ -153,67 +157,74 @@ def setPage():
     setFrame.pack(fill=ttk.BOTH, expand=True, padx=10, pady=10)
     frame_height = window.winfo_height()
     setFrame.configure(height=frame_height,bg='#D9E3F1')    
+
+
     
-    lb = Label(setFrame, text='Select Machine Learning Algorithms',
-               font=('Bold', 20))
-    lb.grid(row=0, column=0, padx=10, pady=40)
-    Checkbutton1 = IntVar()
-    Checkbutton2 = IntVar()
-    Checkbutton3 = IntVar()
-    Checkbutton4 = IntVar()
-    Checkbutton5 = IntVar()
+    def graph():
 
-    Button1 = Checkbutton(setFrame, text="Default(K-Nearest Neighbours)",
-                          variable=Checkbutton1,
-                          onvalue=1,
-                          offvalue=0,
-                          font=('Bold', 15),
-                          height=2,
-                          width=30)
+        filepath = textbox.get("1.0", ttk.END).strip()
+        fileDetails = extract_infos(filepath)
+        # print(fileDetails)
+        x = list(fileDetails.keys())
+        # print(x)
+        y = list(fileDetails.values())
+        # print(y)
+        # Create bar plot
+        fig = plt.Figure(figsize=(5, 4), dpi=100)
+        ax = fig.add_subplot(111)
+        ax.bar(x, y)
 
-    Button2 = Checkbutton(setFrame, text="Logistic Regression",
-                          variable=Checkbutton2,
-                          onvalue=1,
-                          offvalue=0,
-                          font=('Bold', 15),
-                          justify=CENTER,
-                          height=2,
-                          width=30)
+        # Add labels and title
+        ax.set_xlabel('Atrributes')
+        ax.set_ylabel('Values')
+        ax.set_title('Graph of file values')
 
-    Button3 = Checkbutton(setFrame, text="Decision Tree",
-                          variable=Checkbutton3,
-                          onvalue=1,
-                          offvalue=0,
-                          font=('Bold', 15),
-                          justify=LEFT,
-                          relief=FLAT,
-                          height=2,
-                          width=30)
+        # Create Tkinter canvas
+        canvas = FigureCanvasTkAgg(fig, master=text)
+        canvas.draw()
 
-    Button4 = Checkbutton(setFrame, text="Naive Bayes",
-                          variable=Checkbutton4,
-                          onvalue=1,
-                          offvalue=0,
-                          font=('Bold', 15),
-                          height=2,
-                          width=30)
+        # Get size of canvas widget
+        canvas_width = canvas.get_tk_widget().winfo_width()
+        canvas_height = canvas.get_tk_widget().winfo_height()
 
-    Button5 = Checkbutton(setFrame, text="Passive Aggresive",
-                          variable=Checkbutton5,
-                          onvalue=1,
-                          offvalue=0,
-                          height=2,
-                          font=('Bold', 15),
-                          width=30)
+        # Insert canvas widget into Text widget
+        text.window_create(ttk.END, window=canvas.get_tk_widget())
+        enlarge = Button(setFrame, text='Enlarge', font=('Bold', 20),fg='white', bg='green',command=lambda: enlarge_graph(fig))
+        enlarge.place(x=10, y=650,width=350)
+        enlarge.configure(bg='#800080')
 
-    Button1.grid(row=1, column=0, padx=10, pady=10)
-    Button2.grid(row=2, column=0, padx=10, pady=10)
-    Button3.grid(row=3, column=0, padx=10, pady=10)
-    Button4.grid(row=4, column=0, padx=10, pady=10)
-    Button5.grid(row=5, column=0, padx=10, pady=10)
 
-    showbtn = Button(setFrame, text='Save', font=('Bold', 20), bg='green')
-    showbtn.grid(row=6, column=0, padx=10, pady=20)
+    textbox = Text(
+                setFrame,
+                height=1,
+                font=("bold",15)
+                )
+    # textbox.pack(fill=ttk.X,pady=0,expand=True)
+    textbox.place(x=10,y=10)  
+
+    text = ttk.Text(setFrame,height=24,font=("bold",15),fg="black")
+    text.place(x=10,y=50) 
+
+    def enlarge_graph(fig):
+        # Create new window
+        new_window = Toplevel(setFrame)
+
+        # Create new canvas for enlarged graph
+        canvas = FigureCanvasTkAgg(fig, master=new_window)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=ttk.TOP, fill=ttk.BOTH, expand=1)
+
+        # Add toolbar for zooming and saving options
+        toolbar = NavigationToolbar2(canvas, new_window)
+        toolbar.update()
+        canvas.get_tk_widget().pack(side=ttk.TOP, fill=ttk.BOTH, expand=1)
+
+    
+
+
+    showbtn = Button(setFrame, text='Graph', font=('Bold', 20),fg='white', bg='green',command=graph)
+    # showbtn.grid(row=6, column=0, padx=10, pady=20)
+    showbtn.place(x=500, y=650,width=350)
     showbtn.configure(bg='#800080')
     setFrame.pack(pady=20)
     setFrame.pack_propagate(False)
