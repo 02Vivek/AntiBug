@@ -18,7 +18,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 window = Tk()
 window.geometry("1200x750")
 window.title('AntiBug')
-# window.iconbitmap(r'C:\AntiBug\AntiBug\favicon.ico')
+window.iconbitmap(r'C:\AntiBug\AntiBug\favicon.ico')
 
 def scanPage():
 
