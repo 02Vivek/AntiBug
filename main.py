@@ -1,13 +1,16 @@
+import subprocess
 import time
 from tkinter import *
 from tkinter import filedialog as fd
 from tkinter import messagebox
 from matplotlib import pyplot as plt
 from matplotlib.backend_bases import NavigationToolbar2
+import psutil
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from Details import fileInfo
 from Details.fileInfo import extract_infos
+from mypackages import Scan
 from mypackages.Scan import *
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
@@ -25,14 +28,7 @@ def scanPage():
     scanFrame.configure(height=frame_height,bg='#D9E3F1')
 
     
-    output = Text(
-            scanFrame,
-            height=18,
-            width=130,
-            font=("bold",15)
-            )
     
-    output.pack(fill=ttk.X,expand=True)
 
     def scan_directory_depth_first(path):
         stack = [path]
@@ -44,9 +40,10 @@ def scanPage():
                     stack.append(file_path)
                 elif file_path.endswith(".exe"):
                     message = file_path
-                    result = scan_malware(file_path)
                     output.insert('end',"\n"+ message)
+                    result = scan_malware(file_path)
                     output.insert('end',"\n"+ result)
+                   
     
     def choose_folder_and_scan():
         # Show the "Choose Folder" dialog box
@@ -64,7 +61,14 @@ def scanPage():
         result = scan_malware(file_path)
         output.insert('end',"\n"+ result)
         
-
+    output = Text(
+            scanFrame,
+            height=18,
+            width=130,
+            font=("bold",15)
+            )
+    
+    output.pack(fill=ttk.X,expand=True)
 
     #Scan
     def scan_directory():
@@ -75,15 +79,13 @@ def scanPage():
 
     folderScanBtn = Button(scanFrame, text='Scan Folder', width=15, height=2, font=('Bold', 15),fg="white",
                            command=scan_directory)
-    # folderScanBtn.grid(row=0, column=0, padx=10, pady=40)
-    folderScanBtn.place(x=20, y=50, width=400)
+    folderScanBtn.place(x=0, y=50, width=400)
 
     folderScanBtn.configure(bg='#800080')
 
     fileScanBtn = Button(scanFrame, text='Scan File', width=15,
                          height=2, font=('Bold', 15),fg="white", command=choose_file)
-    fileScanBtn.place(x=450, y=50, width=400)
-    # fileScanBtn.grid(row=0, column=5, padx=10, pady=40)
+    fileScanBtn.place(x=450, y=50, width=450)
     fileScanBtn.configure(bg='#800080')
 
     scanFrame.pack(pady=20)
@@ -96,31 +98,12 @@ def quarPage():
     frame_height = window.winfo_height()
     quarFrame.configure(height=frame_height,bg='#D9E3F1')
     
-    def delete_file():
-          # clear the textbox
-        filepath = textbox.get("1.0", ttk.END).strip()         
-        if os.path.exists(filepath):
-            try:
-                os.remove(filepath)
-                textbox.delete("1.0", ttk.END)  # clear the textbox
-                messagebox.showinfo("File Deleted", f"The file {filepath} has been deleted.")
-            except Exception as e:
-                messagebox.showerror("Error", f"Unable to delete file: {str(e)}")
-            except OSError as e:
-        # If the file is currently being used, wait for 5 seconds and try again
-                if e.errno == 32:
-                    print(f"{filepath} is currently being used, waiting for 5 seconds...")
-                    time.sleep(5)
-                    delete_file(filepath)
-        else:
-            messagebox.showerror("Error", f"File does not exist: {filepath}")
 
     textbox = Text(
                 quarFrame,
                 height=1,
                 font=("bold",15)
                 )
-    # textbox.pack(fill=ttk.X,pady=0,expand=True)
     textbox.place(x=10,y=10)
 
     def details():
@@ -134,18 +117,11 @@ def quarPage():
                 height=22,
                 font=("bold",15),
                 )
-    # detailBox.pack(fill=ttk.X,pady=0,expand=True)
     detailBox.place(x=10,y=60)
-    # detailBox.config(state='disable')
-
-
-    deleteFileBtn = Button(quarFrame, text='Delete', font=('Bold', 20),fg="white", command=delete_file)
-    deleteFileBtn.place(x=20.0, y=650,width=350)
-    deleteFileBtn.configure(bg='#800080')
 
     
     restoreFileBtn = Button(quarFrame, text='Show', font=('Bold', 20),fg="white", command=details)
-    restoreFileBtn.place(x=500, y=650,width=350)
+    restoreFileBtn.place(x=300, y=650,width=250)
     restoreFileBtn.configure(bg='#800080')
 
     quarFrame.pack(pady=20)
@@ -164,11 +140,8 @@ def setPage():
 
         filepath = textbox.get("1.0", ttk.END).strip()
         fileDetails = extract_infos(filepath)
-        # print(fileDetails)
         x = list(fileDetails.keys())
-        # print(x)
         y = list(fileDetails.values())
-        # print(y)
         # Create bar plot
         fig = plt.Figure(figsize=(5, 4), dpi=100)
         ax = fig.add_subplot(111)
@@ -190,7 +163,7 @@ def setPage():
         # Insert canvas widget into Text widget
         text.window_create(ttk.END, window=canvas.get_tk_widget())
         enlarge = Button(setFrame, text='Enlarge', font=('Bold', 20),fg='white', bg='green',command=lambda: enlarge_graph(fig))
-        enlarge.place(x=10, y=650,width=350)
+        enlarge.place(x=5, y=650,width=350)
         enlarge.configure(bg='#800080')
 
 
@@ -199,7 +172,6 @@ def setPage():
                 height=1,
                 font=("bold",15)
                 )
-    # textbox.pack(fill=ttk.X,pady=0,expand=True)
     textbox.place(x=10,y=10)  
 
     text = ttk.Text(setFrame,height=24,font=("bold",15),fg="black")
@@ -223,17 +195,16 @@ def setPage():
 
 
     showbtn = Button(setFrame, text='Graph', font=('Bold', 20),fg='white', bg='green',command=graph)
-    # showbtn.grid(row=6, column=0, padx=10, pady=20)
-    showbtn.place(x=500, y=650,width=350)
+    showbtn.place(x=550, y=650,width=350)
     showbtn.configure(bg='#800080')
     setFrame.pack(pady=20)
     setFrame.pack_propagate(False)
 
 
 def hide_indicators():
-    scan_indicate.config(bg='#4B7A0E')
-    quar_indicate.config(bg='#4B7A0E')
-    set_indicate.config(bg='#4B7A0E')
+    scan_indicate.config(bg='#C59EE2')
+    quar_indicate.config(bg='#C59EE2')
+    set_indicate.config(bg='#C59EE2')
 
 
 def deletePages():
@@ -243,7 +214,7 @@ def deletePages():
 
 def indicate(lb, page):
     hide_indicators()
-    lb.config(bg='#074A00')
+    lb.config(bg='#800080')
     deletePages()
     page()
 
@@ -251,33 +222,33 @@ def indicate(lb, page):
 options_frame = Frame(window, bg='#c3c3c3')
 
 # Designing Scan Buttons
-scanphoto = PhotoImage(file=r"image/scan.png")
+scanphoto = PhotoImage(file=r"image/scann.png")
 scanBtn = Button(options_frame, text='Scan', image=scanphoto, font=('Bold', 15), fg='#158aff', bg='#c3c3c3', bd=0,
                  command=lambda: indicate(scan_indicate, scanPage))
-scanBtn.place(x=49.0, y=30.0, width=180.0, height=180.0)
-scanBtn.configure(bg='#4B7A0E')
+scanBtn.place(x=49.0, y=30.0, width=150.0, height=150.0)
+scanBtn.configure(bg='#D9E3F1')
 
 
 scan_indicate = Label(options_frame, text='', bg='#c3c3c3')
 scan_indicate.place(x=3, y=30, width=5, height=150)
 
 # Designing Quarantine Buttons
-webphoto = PhotoImage(file=r"image/web.png")
+webphoto = PhotoImage(file=r"image/details.png")
 quarBtn = Button(options_frame, text='Web', image=webphoto, font=('Bold', 15), fg='#158aff', bg='#c3c3c3', bd=0,
                  command=lambda: indicate(quar_indicate, quarPage))
-quarBtn.place(x=49.0, y=250.0, width=180.0, height=180.0)
-quarBtn.configure(bg='#4B7A0E')
+quarBtn.place(x=49.0, y=250.0, width=150.0, height=150.0)
+quarBtn.configure(bg='#D9E3F1')
 
 
 quar_indicate = Label(options_frame, text='', bg='#c3c3c3')
 quar_indicate.place(x=3, y=250, width=5, height=150)
 
 # Designing settings Buttons
-toolsphoto = PhotoImage(file=r"image/tools.png")
+toolsphoto = PhotoImage(file=r"image/graph.png")
 setBtn = Button(options_frame, text='Tools', image=toolsphoto, font=('Bold', 15), fg='#158aff', bg='#c3c3c3', bd=0,
                 command=lambda: indicate(set_indicate, setPage))
-setBtn.place(x=49.0, y=470.0, width=180.0, height=180.0)
-setBtn.configure(bg='#4B7A0E')
+setBtn.place(x=49.0, y=470.0, width=150.0, height=150.0)
+setBtn.configure(bg='#D9E3F1')
 
 set_indicate = Label(options_frame, text='', bg='#c3c3c3')
 set_indicate.place(x=3, y=470, width=5, height=150)

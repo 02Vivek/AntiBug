@@ -9,12 +9,13 @@ import pickle
 import joblib
 import sys
 import argparse
+import wmi
 
-# from Details.fileInfo import extract_infos
 
 result = 0
 variable = ""
 def scan_malware(filepath):
+    file_name = os.path.basename(filepath)
 
     def get_entropy(data):
         if len(data) == 0:
@@ -175,12 +176,6 @@ def scan_malware(filepath):
             res['VersionInformationSize'] = 0
         return res
     
-    
-    
-    # parser = argparse.ArgumentParser(description='Detect malicious files')
-    # parser.add_argument('FILE', help='File to be tested')
-    # args = parser.parse_args()
-
     clf = joblib.load(os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
         '../classifier/model.pkl'
@@ -198,16 +193,13 @@ def scan_malware(filepath):
     global result
 
     result= clf.predict([pe_features])
-    # print(The file %s is %s' % (
-        # os.path.basename(sys.argv[1]),
     
     message=""
     if result  == 0:
         message += 'Malicious'
     else:
         message += 'Legitimate'
-    #)
-    # del filepath
+
     return message
 
 

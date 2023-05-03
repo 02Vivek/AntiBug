@@ -69,103 +69,102 @@ def extract_infos(filepath):
         res = {}
         pe = pefile.PE(filepath)
         res['Machine'] = pe.FILE_HEADER.Machine
-        res['SizeOfOptionalHeader'] = pe.FILE_HEADER.SizeOfOptionalHeader
+        # res['SizeOfOptionalHeader'] = pe.FILE_HEADER.SizeOfOptionalHeader
         res['Characteristics'] = pe.FILE_HEADER.Characteristics
-        res['MajorLinkerVersion'] = pe.OPTIONAL_HEADER.MajorLinkerVersion
+        # res['MajorLinkerVersion'] = pe.OPTIONAL_HEADER.MajorLinkerVersion
         res['MinorLinkerVersion'] = pe.OPTIONAL_HEADER.MinorLinkerVersion
-        res['SizeOfCode'] = pe.OPTIONAL_HEADER.SizeOfCode
+        # res['SizeOfCode'] = pe.OPTIONAL_HEADER.SizeOfCode
         res['SizeOfInitializedData'] = pe.OPTIONAL_HEADER.SizeOfInitializedData
-        res['SizeOfUninitializedData'] = pe.OPTIONAL_HEADER.SizeOfUninitializedData
-        res['AddressOfEntryPoint'] = pe.OPTIONAL_HEADER.AddressOfEntryPoint
-        res['BaseOfCode'] = pe.OPTIONAL_HEADER.BaseOfCode
-        try:
-            res['BaseOfData'] = pe.OPTIONAL_HEADER.BaseOfData
-        except AttributeError:
-            res['BaseOfData'] = 0
-        res['ImageBase'] = pe.OPTIONAL_HEADER.ImageBase
-        res['SectionAlignment'] = pe.OPTIONAL_HEADER.SectionAlignment
-        res['FileAlignment'] = pe.OPTIONAL_HEADER.FileAlignment
-        res['MajorOperatingSystemVersion'] = pe.OPTIONAL_HEADER.MajorOperatingSystemVersion
-        res['MinorOperatingSystemVersion'] = pe.OPTIONAL_HEADER.MinorOperatingSystemVersion
-        res['MajorImageVersion'] = pe.OPTIONAL_HEADER.MajorImageVersion
+        # res['SizeOfUninitializedData'] = pe.OPTIONAL_HEADER.SizeOfUninitializedData
+        # res['AddressOfEntryPoint'] = pe.OPTIONAL_HEADER.AddressOfEntryPoint
+        # res['BaseOfCode'] = pe.OPTIONAL_HEADER.BaseOfCode
+        # try:
+            # res['BaseOfData'] = pe.OPTIONAL_HEADER.BaseOfData
+        # except AttributeError:
+            # res['BaseOfData'] = 0
+        # res['ImageBase'] = pe.OPTIONAL_HEADER.ImageBase
+        # res['SectionAlignment'] = pe.OPTIONAL_HEADER.SectionAlignment
+        # res['FileAlignment'] = pe.OPTIONAL_HEADER.FileAlignment
+        # res['MajorOperatingSystemVersion'] = pe.OPTIONAL_HEADER.MajorOperatingSystemVersion
+        # res['MinorOperatingSystemVersion'] = pe.OPTIONAL_HEADER.MinorOperatingSystemVersion
+        # res['MajorImageVersion'] = pe.OPTIONAL_HEADER.MajorImageVersion
         res['MinorImageVersion'] = pe.OPTIONAL_HEADER.MinorImageVersion
-        res['MajorSubsystemVersion'] = pe.OPTIONAL_HEADER.MajorSubsystemVersion
-        res['MinorSubsystemVersion'] = pe.OPTIONAL_HEADER.MinorSubsystemVersion
+        # res['MajorSubsystemVersion'] = pe.OPTIONAL_HEADER.MajorSubsystemVersion
+        # res['MinorSubsystemVersion'] = pe.OPTIONAL_HEADER.MinorSubsystemVersion
         res['SizeOfImage'] = pe.OPTIONAL_HEADER.SizeOfImage
-        res['SizeOfHeaders'] = pe.OPTIONAL_HEADER.SizeOfHeaders
-        res['CheckSum'] = pe.OPTIONAL_HEADER.CheckSum
-        res['Subsystem'] = pe.OPTIONAL_HEADER.Subsystem
-        res['DllCharacteristics'] = pe.OPTIONAL_HEADER.DllCharacteristics
+        # res['SizeOfHeaders'] = pe.OPTIONAL_HEADER.SizeOfHeaders
+        # res['CheckSum'] = pe.OPTIONAL_HEADER.CheckSum
+        # res['Subsystem'] = pe.OPTIONAL_HEADER.Subsystem
+        # res['DllCharacteristics'] = pe.OPTIONAL_HEADER.DllCharacteristics
         res['SizeOfStackReserve'] = pe.OPTIONAL_HEADER.SizeOfStackReserve
-        res['SizeOfStackCommit'] = pe.OPTIONAL_HEADER.SizeOfStackCommit
-        res['SizeOfHeapReserve'] = pe.OPTIONAL_HEADER.SizeOfHeapReserve
-        res['SizeOfHeapCommit'] = pe.OPTIONAL_HEADER.SizeOfHeapCommit
-        res['LoaderFlags'] = pe.OPTIONAL_HEADER.LoaderFlags
-        res['NumberOfRvaAndSizes'] = pe.OPTIONAL_HEADER.NumberOfRvaAndSizes
+        # res['SizeOfStackCommit'] = pe.OPTIONAL_HEADER.SizeOfStackCommit
+        # res['SizeOfHeapReserve'] = pe.OPTIONAL_HEADER.SizeOfHeapReserve
+        # res['SizeOfHeapCommit'] = pe.OPTIONAL_HEADER.SizeOfHeapCommit
+        # res['LoaderFlags'] = pe.OPTIONAL_HEADER.LoaderFlags
+        # res['NumberOfRvaAndSizes'] = pe.OPTIONAL_HEADER.NumberOfRvaAndSizes
 
-        res['SectionsNb'] = len(pe.sections)
+        # res['SectionsNb'] = len(pe.sections)
         entropy = list(map(lambda x: x.get_entropy(), pe.sections))
-        res['SectionsMeanEntropy'] = sum(entropy)/float(len(entropy))
+        # res['SectionsMeanEntropy'] = sum(entropy)/float(len(entropy))
         res['SectionsMinEntropy'] = min(entropy)
-        res['SectionsMaxEntropy'] = max(entropy)
+        # res['SectionsMaxEntropy'] = max(entropy)
         raw_sizes = list(map(lambda x: x.SizeOfRawData, pe.sections))
         res['SectionsMeanRawsize'] = sum(raw_sizes)/float(len(raw_sizes))
-        res['SectionsMinRawsize'] = min(raw_sizes)
-        res['SectionsMaxRawsize'] = max(raw_sizes)
-        virtual_sizes = list(map(lambda x: x.Misc_VirtualSize, pe.sections))
-        res['SectionsMeanVirtualsize'] = sum(
-            virtual_sizes)/float(len(virtual_sizes))
-        res['SectionsMinVirtualsize'] = min(virtual_sizes)
-        res['SectionMaxVirtualsize'] = max(virtual_sizes)
+        # res['SectionsMinRawsize'] = min(raw_sizes)
+        # res['SectionsMaxRawsize'] = max(raw_sizes)
+        # virtual_sizes = list(map(lambda x: x.Misc_VirtualSize, pe.sections))
+        # res['SectionsMeanVirtualsize'] = sum(virtual_sizes)/float(len(virtual_sizes))
+        # res['SectionsMinVirtualsize'] = min(virtual_sizes)
+        # res['SectionMaxVirtualsize'] = max(virtual_sizes)
 
-        try:
-            res['ImportsNbDLL'] = len(pe.DIRECTORY_ENTRY_IMPORT)
-            imports = sum([x.imports for x in pe.DIRECTORY_ENTRY_IMPORT], [])
-            res['ImportsNb'] = len(imports)
-            res['ImportsNbOrdinal'] = len(
-                list(filter(lambda x: x.name is None, imports)))
-        except AttributeError:
-            res['ImportsNbDLL'] = 0
-            res['ImportsNb'] = 0
-            res['ImportsNbOrdinal'] = 0
+        # try:
+            # res['ImportsNbDLL'] = len(pe.DIRECTORY_ENTRY_IMPORT)
+            # imports = sum([x.imports for x in pe.DIRECTORY_ENTRY_IMPORT], [])
+            # res['ImportsNb'] = len(imports)
+            # res['ImportsNbOrdinal'] = len(
+                # list(filter(lambda x: x.name is None, imports)))
+        # except AttributeError:
+            # res['ImportsNbDLL'] = 0
+            # res['ImportsNb'] = 0
+            # res['ImportsNbOrdinal'] = 0
 
-        try:
-            res['ExportNb'] = len(pe.DIRECTORY_ENTRY_EXPORT.symbols)
-        except AttributeError:
-            # No export
-            res['ExportNb'] = 0
+        # try:
+        #     res['ExportNb'] = len(pe.DIRECTORY_ENTRY_EXPORT.symbols)
+        # except AttributeError:
+        #     # No export
+        #     res['ExportNb'] = 0
 
         resources = get_resources(pe)
-        res['ResourcesNb'] = len(resources)
+        # res['ResourcesNb'] = len(resources)
         if len(resources) > 0:
-            entropy = list(map(lambda x: x[0], resources))
-            res['ResourcesMeanEntropy'] = sum(entropy)/float(len(entropy))
-            res['ResourcesMinEntropy'] = min(entropy)
-            res['ResourcesMaxEntropy'] = max(entropy)
+            # entropy = list(map(lambda x: x[0], resources))
+            # res['ResourcesMeanEntropy'] = sum(entropy)/float(len(entropy))
+            # res['ResourcesMinEntropy'] = min(entropy)
+            # res['ResourcesMaxEntropy'] = max(entropy)
             sizes = list(map(lambda x: x[1], resources))
             res['ResourcesMeanSize'] = sum(sizes)/float(len(sizes))
             res['ResourcesMinSize'] = min(sizes)
-            res['ResourcesMaxSize'] = max(sizes)
+            # res['ResourcesMaxSize'] = max(sizes)
         else:
-            res['ResourcesNb'] = 0
-            res['ResourcesMeanEntropy'] = 0
-            res['ResourcesMinEntropy'] = 0
-            res['ResourcesMaxEntropy'] = 0
+            # res['ResourcesNb'] = 0
+            # res['ResourcesMeanEntropy'] = 0
+            # res['ResourcesMinEntropy'] = 0
+            # res['ResourcesMaxEntropy'] = 0
             res['ResourcesMeanSize'] = 0
             res['ResourcesMinSize'] = 0
-            res['ResourcesMaxSize'] = 0
+            # res['ResourcesMaxSize'] = 0
 
-        try:
-            res['LoadConfigurationSize'] = pe.DIRECTORY_ENTRY_LOAD_CONFIG.struct.Size
-        except AttributeError:
-            res['LoadConfigurationSize'] = 0
+        # try:
+        #     res['LoadConfigurationSize'] = pe.DIRECTORY_ENTRY_LOAD_CONFIG.struct.Size
+        # except AttributeError:
+        #     res['LoadConfigurationSize'] = 0
 
-        # Version configuration size
-        try:
-            version_infos = get_version_info(pe)
-            res['VersionInformationSize'] = len(version_infos.keys())
-        except AttributeError:
-            res['VersionInformationSize'] = 0
+        # # Version configuration size
+        # try:
+        #     version_infos = get_version_info(pe)
+        #     res['VersionInformationSize'] = len(version_infos.keys())
+        # except AttributeError:
+        #     res['VersionInformationSize'] = 0
         
         features = res
         # print(features)
